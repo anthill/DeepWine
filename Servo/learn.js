@@ -113,7 +113,7 @@ fs.createReadStream("data/servo.csv")
 
 		var layer_defs = [];
 		layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth: CONTINUOUS_FEATURES.length + vectCategoriesSize});
-		layer_defs.push({type:'fc', num_neurons:20, activation:'relu'});
+		layer_defs.push({type:'fc', num_neurons: 100, activation:'relu'});
 		layer_defs.push({type:'regression', num_neurons: 1});
 
 		var net = new convnetjs.Net();
@@ -140,7 +140,6 @@ fs.createReadStream("data/servo.csv")
 
 			lodash.shuffle(dataset2).forEach(function(line){
 
-
 				var stats = trainer.train(line.x, [line.y]);
 				lossWindow.add(stats.loss);
 
@@ -149,17 +148,19 @@ fs.createReadStream("data/servo.csv")
 				predicted.push([predictObject[0]]);	
 
 				lines += 1;
+
 				if (lines % 1000 === 0){
-					console.log("loss", lossWindow.get_average())
+					// console.log("loss", lossWindow.get_average());
 					
 					var md = meanDistance(expected, predicted);
 					var mp = meanPearson(expected, predicted);
+
 					expected = [];
 					predicted = [];
 					console.log("meanDistance: ", md);
 					console.log("meanPearson: ", mp);
 				}
-			})
+			});
 
 		}
 
@@ -180,8 +181,6 @@ fs.createReadStream("data/servo.csv")
 		var mp = meanPearson(expected, predicted);
 		console.log("meanDistance: ", md);
 		console.log("meanPearson: ", mp);
-
-
 
 		console.log("Saving model");
 		var modelJson = net.toJSON();

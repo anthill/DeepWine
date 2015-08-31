@@ -15,13 +15,12 @@ var meanPearson = require("../_Utils/validation/meanPearson.js");
 
 var randomProjection = require("../_Utils/preparation/randomProjection.js");
 
-
-var ITER = 100;
+var ITER = 300;
 var FEATURES = ["pgain", "vgain", "motor", "screw"];
 var CONTINUOUS_FEATURES = ["pgain", "vgain"];
 var CATEGORICAL_FEATURES = ["motor", "screw"];
 var TARGET = "class";
-var PROJ_DIM = 4;
+var PROJ_DIM = 10;
 
 
 // error window
@@ -72,7 +71,11 @@ function prepareVolume(line){
 	var features = [continuous];
 
 	Object.keys(categorical).forEach(function(featureName){
-		features.push(categorical[featureName].projection);
+		var attribute = categorical[featureName].attribute;
+
+		// get updated projection
+		features.push(catMap.get(featureName).get(attribute));
+		// features.push(categorical[featureName].projection);
 	});
 
 	return new convnetjs.Vol(lodash.flattenDeep(features)); // features is now of dimension inputSize, here -> 100
@@ -124,7 +127,7 @@ fs.createReadStream("data/servo.csv")
 
 		var layer_defs = [];
 		layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth: inputSize});
-		layer_defs.push({type:'fc', num_neurons:20, activation:'relu'});
+		layer_defs.push({type:'fc', num_neurons:100, activation:'relu'});
 		layer_defs.push({type:'regression', num_neurons: 1});
 
 		var net = new convnetjs.Net();
@@ -139,6 +142,7 @@ fs.createReadStream("data/servo.csv")
 			// console.log('ITER', iters+1);
 
 			lodash.shuffle(dataset).forEach(function(line){
+				lines += 1;
 
 				var features = prepareVolume(line);
 				var categorical = line.categorical; // needed because we need to access the projections to update them
@@ -162,6 +166,8 @@ fs.createReadStream("data/servo.csv")
 						grad.push(features.dw[I]);
 					}
 
+
+					// console.log(featureName, attribute);
 					// console.log('attribute', featureName, attribute);
 					// console.log('before', toProjMap.get(attribute));
 
@@ -169,27 +175,29 @@ fs.createReadStream("data/servo.csv")
 					var updatedProjection = ubique.plus(toProjMap.get(attribute), grad);
 					toProjMap.set(attribute, updatedProjection);
 
-					// console.log('after', toProjMap.get(attribute));
+					if (attribute === 'A' && featureName === 'screw')
+						// console.log('grad', grad);
+						console.log('after', toProjMap.get(attribute));
 
 				});
-
 
 				expected.push([line.target]);
 				predicted.push([predictObject[0]]);
 
-				lines += 1;
-				if (lines % 1000 === 0){
-					console.log("loss", lossWindow.get_average());
-					
-					var md = meanDistance(expected, predicted);
-					var mp = meanPearson(expected, predicted);
+				
 
-					expected = [];
-					predicted = [];
-					console.log("meanDistance: ", md);
-					console.log("meanPearson: ", mp);
-				}
-			})
+				// if (lines % 1000 === 0){
+				// 	console.log("loss", lossWindow.get_average());
+					
+				// 	var md = meanDistance(expected, predicted);
+				// 	var mp = meanPearson(expected, predicted);
+
+				// 	expected = [];
+				// 	predicted = [];
+				// 	console.log("meanDistance: ", md);
+				// 	console.log("meanPearson: ", mp);
+				// }
+			});
 
 		}
 
@@ -213,7 +221,17 @@ fs.createReadStream("data/servo.csv")
 		console.log("meanDistance: ", md);
 		console.log("meanPearson: ", mp);
 
+		// var vectorA = catMap.get('screw').get('A');
+		// var vectorB = catMap.get('screw').get('B');
 
+		// console.log('Distance', ubique.pdist(vectorA, vectorB));
+
+		catMap.forEach(function(map, featureName){
+			// console.log('feature Vectors', featureName);
+			map.forEach(function(projection, attribute){
+				console.log(attribute, projection);
+			});
+		});
 
 		console.log("Saving model");
 		var modelJson = net.toJSON();
