@@ -10,7 +10,7 @@ var convnetjs = require("convnetjs");
 var lodash = require("lodash");
 
 var getReducedModel = require('../modelReduction/getReducedModel.js');
-var meanDistance = require("../validation/meanDistance.js");
+var meanDistance = require("../validation/meanDistance.js").distance1;
 var meanPearson = require("../validation/meanPearson.js");
 
 var MODEL_SIZE = 11; // 11 is full size
@@ -167,15 +167,16 @@ fs.createReadStream("../data/whites.csv")
 		end = Date.now();
 		console.log('Evaluation time', (end - start)/1000, 's');
 
+		// Use if you want to save your model
 
-		console.log("SAVING MODEL");
-		var modelJson = net.toJSON();
-		var model = "../data/modelWithReduction.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// console.log("SAVING MODEL");
+		// var modelJson = net.toJSON();
+		// var model = "../data/modelWithReduction.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// });
 	});
 
 

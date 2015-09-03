@@ -7,10 +7,11 @@ var path = require('path');
 var glob = require("glob");
 var csv = require('csv-parser');
 var convnetjs = require("convnetjs");
+var cnnutil = require("convnetjs/build/util");
 var lodash = require("lodash");
 var ubique = require("ubique");
 
-var meanDistance = require("../_Utils/validation/meanDistance.js");
+var meanDistance = require("../_Utils/validation/meanDistance.js").distance1;
 var meanPearson = require("../_Utils/validation/meanPearson.js");
 
 
@@ -20,36 +21,7 @@ var CATEGORICAL_FEATURES = ["motor", "screw"];
 var TARGET = "class";
 
 
-
-// error window
-var Window = function(size, minsize) {
-    this.v = [];
-    this.size = typeof(size)==='undefined' ? 100 : size;
-    this.minsize = typeof(minsize)==='undefined' ? 10 : minsize;
-    this.sum = 0;
-  }
-
-Window.prototype = {
-    add: function(x) {
-      this.v.push(x);
-      this.sum += x;
-      if(this.v.length>this.size) {
-        var xold = this.v.shift();
-        this.sum -= xold;
-      }
-    },
-    get_average: function() {
-      if(this.v.length < this.minsize) return -1;
-      else return this.sum/this.v.length;
-    },
-    reset: function(x) {
-      this.v = [];
-      this.sum = 0;
-    }
-}
-
-
-var lossWindow = new Window();
+var lossWindow = new cnnutil.Window(100);
 var lines = 0;
 var expected = [];
 var predicted = [];
@@ -113,7 +85,7 @@ fs.createReadStream("data/servo.csv")
 
 		var layer_defs = [];
 		layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth: CONTINUOUS_FEATURES.length + vectCategoriesSize});
-		layer_defs.push({type:'fc', num_neurons:20, activation:'relu'});
+		layer_defs.push({type:'fc', num_neurons: 100, activation:'relu'});
 		layer_defs.push({type:'regression', num_neurons: 1});
 
 		var net = new convnetjs.Net();
@@ -140,7 +112,6 @@ fs.createReadStream("data/servo.csv")
 
 			lodash.shuffle(dataset2).forEach(function(line){
 
-
 				var stats = trainer.train(line.x, [line.y]);
 				lossWindow.add(stats.loss);
 
@@ -149,17 +120,19 @@ fs.createReadStream("data/servo.csv")
 				predicted.push([predictObject[0]]);	
 
 				lines += 1;
+
 				if (lines % 1000 === 0){
-					console.log("loss", lossWindow.get_average())
+					console.log("loss", lossWindow.get_average());
 					
 					var md = meanDistance(expected, predicted);
 					var mp = meanPearson(expected, predicted);
+
 					expected = [];
 					predicted = [];
 					console.log("meanDistance: ", md);
 					console.log("meanPearson: ", mp);
 				}
-			})
+			});
 
 		}
 
@@ -181,16 +154,16 @@ fs.createReadStream("data/servo.csv")
 		console.log("meanDistance: ", md);
 		console.log("meanPearson: ", mp);
 
+		// Use if you want to save the model
 
-
-		console.log("Saving model");
-		var modelJson = net.toJSON();
-		var model = "data/model.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// console.log("Saving model");
+		// var modelJson = net.toJSON();
+		// var model = "data/model.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// });
 	});
 
 
