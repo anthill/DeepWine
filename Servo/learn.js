@@ -122,7 +122,7 @@ fs.createReadStream("data/servo.csv")
 				lines += 1;
 
 				if (lines % 1000 === 0){
-					// console.log("loss", lossWindow.get_average());
+					console.log("loss", lossWindow.get_average());
 					
 					var md = meanDistance(expected, predicted);
 					var mp = meanPearson(expected, predicted);
@@ -154,14 +154,16 @@ fs.createReadStream("data/servo.csv")
 		console.log("meanDistance: ", md);
 		console.log("meanPearson: ", mp);
 
-		console.log("Saving model");
-		var modelJson = net.toJSON();
-		var model = "data/model.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// Use if you want to save the model
+
+		// console.log("Saving model");
+		// var modelJson = net.toJSON();
+		// var model = "data/model.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// });
 	});
 
 

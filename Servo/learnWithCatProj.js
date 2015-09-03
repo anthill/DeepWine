@@ -7,6 +7,7 @@ var path = require('path');
 var glob = require("glob");
 var csv = require('csv-parser');
 var convnetjs = require("convnetjs");
+var cnnutil = require("convnetjs/build/util");
 var lodash = require("lodash");
 var ubique = require("ubique");
 
@@ -22,36 +23,7 @@ var CATEGORICAL_FEATURES = ["motor", "screw"];
 var TARGET = "class";
 var PROJ_DIM = 10;
 
-
-// error window
-var Window = function(size, minsize) {
-    this.v = [];
-    this.size = typeof(size)==='undefined' ? 100 : size;
-    this.minsize = typeof(minsize)==='undefined' ? 10 : minsize;
-    this.sum = 0;
-  }
-
-Window.prototype = {
-    add: function(x) {
-      this.v.push(x);
-      this.sum += x;
-      if(this.v.length>this.size) {
-        var xold = this.v.shift();
-        this.sum -= xold;
-      }
-    },
-    get_average: function() {
-      if(this.v.length < this.minsize) return -1;
-      else return this.sum/this.v.length;
-    },
-    reset: function(x) {
-      this.v = [];
-      this.sum = 0;
-    }
-}
-
-
-var lossWindow = new Window();
+var lossWindow = new cnnutil.Window(100);
 var lines = 0;
 var expected = [];
 var predicted = [];
@@ -166,7 +138,6 @@ fs.createReadStream("data/servo.csv")
 						grad.push(features.dw[I]);
 					}
 
-
 					// console.log(featureName, attribute);
 					// console.log('attribute', featureName, attribute);
 					// console.log('before', toProjMap.get(attribute));
@@ -175,16 +146,14 @@ fs.createReadStream("data/servo.csv")
 					var updatedProjection = ubique.plus(toProjMap.get(attribute), grad);
 					toProjMap.set(attribute, updatedProjection);
 
-					if (attribute === 'A' && featureName === 'screw')
-						// console.log('grad', grad);
-						console.log('after', toProjMap.get(attribute));
+					// if (attribute === 'A' && featureName === 'screw')
+					// 	console.log('grad', grad);
+					// 	console.log('after', toProjMap.get(attribute));
 
 				});
 
 				expected.push([line.target]);
 				predicted.push([predictObject[0]]);
-
-				
 
 				if (lines % 1000 === 0){
 					console.log("loss", lossWindow.get_average());
@@ -221,26 +190,16 @@ fs.createReadStream("data/servo.csv")
 		console.log("meanDistance: ", md);
 		console.log("meanPearson: ", mp);
 
-		// var vectorA = catMap.get('screw').get('A');
-		// var vectorB = catMap.get('screw').get('B');
+		// Use if you want to save the model
 
-		// console.log('Distance', ubique.pdist(vectorA, vectorB));
-
-		catMap.forEach(function(map, featureName){
-			// console.log('feature Vectors', featureName);
-			map.forEach(function(projection, attribute){
-				console.log(attribute, projection);
-			});
-		});
-
-		console.log("Saving model");
-		var modelJson = net.toJSON();
-		var model = "data/model.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// console.log("Saving model");
+		// var modelJson = net.toJSON();
+		// var model = "data/model.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// } );
 	});
 
 
