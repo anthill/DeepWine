@@ -176,15 +176,16 @@ fs.createReadStream("data/titanic.csv")
 		});
 		console.log('Training accuracy: ' + f2t(accuracy.get_average()))
 
+		// Use if you want to save your model
 
-		console.log("Saving model");
-		var modelJson = net.toJSON();
-		var model = "data/model.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// console.log("Saving model");
+		// var modelJson = net.toJSON();
+		// var model = "data/model.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// } );
 	});
 
 

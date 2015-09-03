@@ -167,15 +167,16 @@ fs.createReadStream("../data/whites.csv")
 		end = Date.now();
 		console.log('Evaluation time', (end - start)/1000, 's');
 
+		// Use if you want to save your model
 
-		console.log("SAVING MODEL");
-		var modelJson = net.toJSON();
-		var model = "../data/modelWithReduction.json"
-		var modelPath = path.join(__dirname, model);
-		fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
-			if (err) console.log(err)
-			console.log("Model saved in ", modelPath);
-		} );
+		// console.log("SAVING MODEL");
+		// var modelJson = net.toJSON();
+		// var model = "../data/modelWithReduction.json"
+		// var modelPath = path.join(__dirname, model);
+		// fs.writeFile(modelPath, JSON.stringify(modelJson), function(err) {
+		// 	if (err) console.log(err)
+		// 	console.log("Model saved in ", modelPath);
+		// });
 	});
 
 
