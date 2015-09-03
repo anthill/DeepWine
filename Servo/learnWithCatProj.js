@@ -186,17 +186,17 @@ fs.createReadStream("data/servo.csv")
 
 				
 
-				// if (lines % 1000 === 0){
-				// 	console.log("loss", lossWindow.get_average());
+				if (lines % 1000 === 0){
+					console.log("loss", lossWindow.get_average());
 					
-				// 	var md = meanDistance(expected, predicted);
-				// 	var mp = meanPearson(expected, predicted);
+					var md = meanDistance(expected, predicted);
+					var mp = meanPearson(expected, predicted);
 
-				// 	expected = [];
-				// 	predicted = [];
-				// 	console.log("meanDistance: ", md);
-				// 	console.log("meanPearson: ", mp);
-				// }
+					expected = [];
+					predicted = [];
+					console.log("meanDistance: ", md);
+					console.log("meanPearson: ", mp);
+				}
 			});
 
 		}

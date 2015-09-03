@@ -24,8 +24,8 @@ function onItem(dimension){
 
 function onList(attributes, dimension){
 
-	var projections = dataAttributes.map(function(attribute){
-		return onItem(attribute, dimension);
+	var projections = attributes.map(function(attribute){
+		return onItem(dimension);
 	});
 
 	console.log('Results of random projection', projections);
