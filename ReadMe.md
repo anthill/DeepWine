@@ -1,6 +1,6 @@
 A place to explore various deepLearning techniques.
 
-## DeepWine
+## Wine
 
 A regression, with or without PCA.
 
