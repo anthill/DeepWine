@@ -143,7 +143,7 @@ fs.createReadStream("data/titanic.csv")
 
 				var yhat = net.getPrediction();
 				var predictObject = net.forward(features, false);
-				console.log(yhat, line.target, predictObject)
+				// console.log(yhat, line.target, predictObject)
 				var train_acc = yhat === line.target ? 1.0 : 0.0;
 				trainAccWindow.add(train_acc);
 				
@@ -169,7 +169,7 @@ fs.createReadStream("data/titanic.csv")
 
 			net.forward(features);
 			var yhat = net.getPrediction();
-			console.log(yhat)
+			// console.log(yhat)
 			var train_acc = yhat === line.target ? 1.0 : 0.0;
 			accuracy.add(train_acc);
 			

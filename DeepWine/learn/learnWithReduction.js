@@ -10,7 +10,7 @@ var convnetjs = require("convnetjs");
 var lodash = require("lodash");
 
 var getReducedModel = require('../modelReduction/getReducedModel.js');
-var meanDistance = require("../validation/meanDistance.js");
+var meanDistance = require("../validation/meanDistance.js").distance1;
 var meanPearson = require("../validation/meanPearson.js");
 
 var MODEL_SIZE = 11; // 11 is full size

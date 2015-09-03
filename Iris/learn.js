@@ -11,10 +11,6 @@ var cnnutil = require("convnetjs/build/util");
 var lodash = require("lodash");
 var ubique = require("ubique");
 
-
-var randomProjection = require("../_Utils/preparation/randomProjection.js");
-
-
 var ITER = 20;
 var CONTINUOUS_FEATURES = ["sepal_length", "sepal_width", "petal_length", "petal_width"];
 var targets = {"Iris-setosa": 0, "Iris-versicolor": 1, "Iris-virginica": 2};

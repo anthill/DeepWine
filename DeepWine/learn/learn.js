@@ -9,7 +9,7 @@ var csv = require('csv-parser');
 var convnetjs = require("convnetjs");
 var lodash = require("lodash");
 
-var meanDistance = require("../../_Utils/validation/meanDistance.js");
+var meanDistance = require("../../_Utils/validation/meanDistance.js").distance1;
 var meanPearson = require("../../_Utils/validation/meanPearson.js");
 
 
@@ -22,51 +22,16 @@ var TARGET = "quality";
 
 var trainer = new convnetjs.Trainer(net, {method: 'adadelta', l2_decay: 0.001, batch_size: 1});
 
-
-// error window
-var Window = function(size, minsize) {
-    this.v = [];
-    this.size = typeof(size)==='undefined' ? 100 : size;
-    this.minsize = typeof(minsize)==='undefined' ? 10 : minsize;
-    this.sum = 0;
-  }
-
-Window.prototype = {
-    add: function(x) {
-      this.v.push(x);
-      this.sum += x;
-      if(this.v.length>this.size) {
-        var xold = this.v.shift();
-        this.sum -= xold;
-      }
-    },
-    get_average: function() {
-      if(this.v.length < this.minsize) return -1;
-      else return this.sum/this.v.length;
-    },
-    reset: function(x) {
-      this.v = [];
-      this.sum = 0;
-    }
-}
-
 var layer_defs = [];
 layer_defs.push({type:'input', out_sx:1, out_sy:1, out_depth: FEATURES.length});
 layer_defs.push({type:'fc', num_neurons: L1_DEPTH, activation:'sigmoid'});
-// layer_defs.push({type:'fc', num_neurons:10, activation:'sigmoid', drop_prob: 0.5});
-// layer_defs.push({type:'fc', num_neurons:10, activation:'sigmoid', drop_prob: 0.5});
-// layer_defs.push({type:'fc', num_neurons:10, activation:'sigmoid', drop_prob: 0.5});
-// layer_defs.push({type:'fc', num_neurons:10, activation:'relu'});
-// layer_defs.push({type:'fc', num_neurons:10, activation:'relu'});
 layer_defs.push({type:'regression', num_neurons: OUT_DEPTH});
 
 var net = new convnetjs.Net();
 net.makeLayers(layer_defs);
 
-// var trainer = new convnetjs.Trainer(net, {method: 'adagrad', l2_decay: 0.001, l1_decay: 0.001, batch_size: 1});
 var trainer = new convnetjs.Trainer(net, {method: 'adadelta', l2_decay: 0.001, l1_decay: 0.001, batch_size: 1});
 
-var lossWindow = new Window();
 var lines = 0;
 var expected = [];
 var predicted = [];
@@ -101,7 +66,6 @@ fs.createReadStream("../data/whites.csv")
 
 			lodash.shuffle(dataset).forEach(function(line){
 				var stats = trainer.train(line.x, [line.y]);
-				lossWindow.add(stats.loss);
 
 				var predictObject = net.forward(line.x).w;
 				expected.push([line.y]);
@@ -114,8 +78,6 @@ fs.createReadStream("../data/whites.csv")
 					var mp = meanPearson(expected, predicted);
 					expected = [];
 					predicted = [];
-
-					// console.log('gradients', line.x.dw);
 
 					// console.log(lines, "lines --> meanDistance: ", md, "meanPearson: ", mp, "loss", lossWindow.get_average());
 					

@@ -11,7 +11,7 @@ var cnnutil = require("convnetjs/build/util");
 var lodash = require("lodash");
 var ubique = require("ubique");
 
-var meanDistance = require("../_Utils/validation/meanDistance.js");
+var meanDistance = require("../_Utils/validation/meanDistance.js").distance1;
 var meanPearson = require("../_Utils/validation/meanPearson.js");
 
 
